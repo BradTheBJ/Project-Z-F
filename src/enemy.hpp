@@ -2,21 +2,22 @@
 #include <SFML/Graphics.hpp>
 #include "globals.hpp"
 
-struct PlayerVars {
-    float speed = 500.0f;
+struct EnemyVars
+{
     int width = 100;
     int height = 100;
-    float x = 500.0f;
-    float y = 500.0f;
+    float x = 300.0f;
+    float y = 300.0f;
 };
 
-class Player {
-    private:
+class Enemy {
+private:
     sf::RectangleShape shape;
 
-    public:
-    Player();
-    PlayerVars playerVars;
+public:
+    Enemy();
+    EnemyVars e;
     void update();
     void draw(sf::RenderWindow &window);
 };
+

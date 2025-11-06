@@ -1,11 +1,10 @@
 #include "window.hpp"
 
 
-float deltaTime = 0.f;
-
 void game() {
     Window w;
     Player player;
+    Enemy enemy;
 
     sf::RenderWindow window(
         sf::VideoMode({static_cast<unsigned int>(w.width),
@@ -32,6 +31,7 @@ void game() {
         window.clear(sf::Color::Black);
         player.update();
         player.draw(window);
+        enemy.draw(window);
         window.display();
     }
 }

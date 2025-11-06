@@ -17,6 +17,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SFML)
 
 # --- Add your source files ---
-add_executable(game src/main.cpp src/window.cpp src/player.cpp) 
+add_executable(game src/main.cpp src/window.cpp src/player.cpp src/globals.cpp src/enemy.cpp) 
 # --- Link SFML ---
 target_link_libraries(game PRIVATE SFML::Graphics SFML::Window SFML::System)
