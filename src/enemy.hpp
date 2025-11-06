@@ -1,9 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "globals.hpp"
 
-struct EnemyVars
-{
+struct EnemyVars {
     int width = 100;
     int height = 100;
     float x = 300.0f;
@@ -15,9 +13,15 @@ private:
     sf::RectangleShape shape;
 
 public:
-    Enemy();
-    EnemyVars e;
-    void update();
-    void draw(sf::RenderWindow &window);
-};
+    // Constructor now takes width, height first, followed by x and y
+    Enemy(int width = EnemyVars().width, int height = EnemyVars().height, float x = EnemyVars().x, float y = EnemyVars().y);
 
+    // In enemy.hpp, inside class Enemy
+    sf::FloatRect getGlobalBounds() const {
+        return shape.getGlobalBounds();
+    }
+
+
+    void update();
+    void draw(sf::RenderWindow& window);
+};

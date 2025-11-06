@@ -15,6 +15,10 @@ void game() {
 
     window.setVerticalSyncEnabled(true);
 
+    enemies.push_back(Enemy());  // Uses default (300, 300, 100, 100)
+    enemies.push_back(Enemy(100, 100, 100, 100)); //Place holder enemy
+
+
     sf::Clock clock; // measures time per frame
 
     while (window.isOpen()) {
@@ -26,12 +30,22 @@ void game() {
                 window.close();
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
+            window.close();
+        }
+
         player.update(); // will use deltaTime
 
         window.clear(sf::Color::Black);
+
         player.update();
         player.draw(window);
-        enemy.draw(window);
+
+        for (size_t i = 0; i < enemies.size(); i++) {
+        enemies[i].draw(window);
+        }
+
+
         window.display();
     }
 }

@@ -8,15 +8,17 @@ struct PlayerVars {
     int height = 100;
     float x = 500.0f;
     float y = 500.0f;
+    bool isColliding;
 };
 
 class Player {
     private:
     sf::RectangleShape shape;
+    bool isColliding;
 
     public:
     Player();
-    PlayerVars playerVars;
+    PlayerVars vars;
     void update();
     void draw(sf::RenderWindow &window);
 };
