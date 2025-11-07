@@ -2,3 +2,4 @@
 
 float deltaTime = 0.f;
 std::vector<Enemy> enemies;
+std::vector<Player> playerProjectiles;
