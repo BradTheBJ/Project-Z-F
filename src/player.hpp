@@ -1,14 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <vector>
-#include "enemy.hpp"
 
 struct PlayerVars {
-    float speed  = 500.0f;
+    float speed  = 500.f;
     int width    = 100;
     int height   = 100;
-    float x      = 500.0f;
-    float y      = 500.0f;
+    float x      = 500.f;
+    float y      = 500.f;
 };
 
 class Gun {
@@ -38,5 +36,4 @@ public:
     void update();
     void draw(sf::RenderWindow& window);
     sf::Vector2f getPosition() const { return shape.getPosition(); }
-
 };

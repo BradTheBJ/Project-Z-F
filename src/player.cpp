@@ -1,7 +1,7 @@
 #include "player.hpp"
 #include "globals.hpp"
+#include "enemy.hpp"
 
-// Gun implementation
 Gun::Gun() {
     shape.setRadius(static_cast<float>(vars.radius));
     shape.setFillColor(sf::Color::Yellow);
@@ -16,14 +16,13 @@ void Gun::draw(sf::RenderWindow& window) {
     window.draw(shape);
 }
 
-// Player implementation
 Player::Player() {
     shape.setSize({ static_cast<float>(vars.width),
                     static_cast<float>(vars.height) });
     shape.setFillColor(sf::Color::Green);
     shape.setPosition({ vars.x, vars.y });
-    shape.setOrigin({ shape.getSize().x / 2.0f,
-                      shape.getSize().y / 2.0f });
+    shape.setOrigin({ shape.getSize().x / 2.f,
+                      shape.getSize().y / 2.f });
 }
 
 void Player::update() {
@@ -45,9 +44,8 @@ void Player::update() {
     shape.setPosition({ vars.x, vars.y });
     gun.update(shape.getPosition());
 
-    for (const auto& e : enemies) {
-        auto maybeInter = shape.getGlobalBounds().findIntersection(e.getGlobalBounds());
-        if (maybeInter) {
+    for (auto& e : enemies) {
+        if (shape.getGlobalBounds().findIntersection(e.getGlobalBounds())) {
             shape.setPosition(lastPos);
             vars.x = lastPos.x;
             vars.y = lastPos.y;
