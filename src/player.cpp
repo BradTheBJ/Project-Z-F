@@ -1,48 +1,62 @@
 #include "player.hpp"
+#include "globals.hpp"
 
-Player::Player() {
-    shape.setSize({static_cast<float>(vars.width), static_cast<float>(vars.height)});
-    shape.setFillColor(sf::Color::Green);
-    shape.setPosition(sf::Vector2f(vars.x, vars.y));
+// Gun implementation
+Gun::Gun() {
+    shape.setRadius(static_cast<float>(vars.radius));
+    shape.setFillColor(sf::Color::Yellow);
+    shape.setOrigin({ shape.getRadius(), shape.getRadius() });
 }
 
-bool isColliding = false;
+void Gun::update(const sf::Vector2f& playerPos) {
+    shape.setPosition(playerPos);
+}
+
+void Gun::draw(sf::RenderWindow& window) {
+    window.draw(shape);
+}
+
+// Player implementation
+Player::Player() {
+    shape.setSize({ static_cast<float>(vars.width),
+                    static_cast<float>(vars.height) });
+    shape.setFillColor(sf::Color::Green);
+    shape.setPosition({ vars.x, vars.y });
+    shape.setOrigin({ shape.getSize().x / 2.0f,
+                      shape.getSize().y / 2.0f });
+}
 
 void Player::update() {
     sf::Vector2f lastPos = shape.getPosition();
 
-    // Handle movement
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
         vars.x -= vars.speed * deltaTime;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
         vars.x += vars.speed * deltaTime;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
         vars.y -= vars.speed * deltaTime;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
         vars.y += vars.speed * deltaTime;
-
-    // Update shape position before collision check
-    shape.setPosition(sf::Vector2f(vars.x, vars.y));
-
-    // Single collision block
-    bool isColliding = false;
-    sf::FloatRect intersection;
-    for (Enemy& e : enemies) {
-        if (shape.getGlobalBounds().findIntersection(e.getGlobalBounds())) {
-            isColliding = true;
-            break; // stop at first collision
-        }
     }
 
-    // Undo movement if colliding
-    if (isColliding) {
-        shape.setPosition(lastPos);
-        vars.x = lastPos.x;
-        vars.y = lastPos.y;
+    shape.setPosition({ vars.x, vars.y });
+    gun.update(shape.getPosition());
+
+    for (const auto& e : enemies) {
+        auto maybeInter = shape.getGlobalBounds().findIntersection(e.getGlobalBounds());
+        if (maybeInter) {
+            shape.setPosition(lastPos);
+            vars.x = lastPos.x;
+            vars.y = lastPos.y;
+            break;
+        }
     }
 }
 
-
-void Player::draw(sf::RenderWindow &window) {
+void Player::draw(sf::RenderWindow& window) {
     window.draw(shape);
+    gun.draw(window);
 }

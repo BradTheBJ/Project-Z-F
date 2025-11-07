@@ -1,50 +1,48 @@
 #include "window.hpp"
+#include "player.hpp"
+#include "enemy.hpp"
+#include "globals.hpp"
 
+#include <SFML/Graphics.hpp>
+#include <vector>
 
 void game() {
     Window w;
     Player player;
-    Enemy enemy;
 
-    sf::RenderWindow window(
-        sf::VideoMode({static_cast<unsigned int>(w.width),
-                       static_cast<unsigned int>(w.height)}),
-        "Project Z",
-        sf::State::Windowed
-    );
-
+    sf::VideoMode mode({ static_cast<unsigned int>(w.width),
+                         static_cast<unsigned int>(w.height) });
+    sf::RenderWindow window(mode, "Project Z");
     window.setVerticalSyncEnabled(true);
 
-    enemies.push_back(Enemy());  // Uses default (300, 300, 100, 100)
-    enemies.push_back(Enemy(100, 100, 100, 100)); //Place holder enemy
+    enemies.clear();
+    enemies.push_back(Enemy());
+    enemies.push_back(Enemy(100, 100, 100, 100));
 
-
-    sf::Clock clock; // measures time per frame
+    sf::Clock clock;
 
     while (window.isOpen()) {
-        // calculate delta time (in seconds)
         deltaTime = clock.restart().asSeconds();
 
-        while (const std::optional<sf::Event> event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>())
+        while (auto eventOpt = window.pollEvent()) {
+            const sf::Event &event = *eventOpt;
+            if (event.is<sf::Event::Closed>()) {
                 window.close();
+            }
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
             window.close();
         }
 
-        player.update(); // will use deltaTime
+        player.update();
 
         window.clear(sf::Color::Black);
-
-        player.update();
         player.draw(window);
 
-        for (size_t i = 0; i < enemies.size(); i++) {
-        enemies[i].draw(window);
+        for (auto& e : enemies) {
+            e.draw(window);
         }
-
 
         window.display();
     }

@@ -1,14 +1,18 @@
 #include "enemy.hpp"
 
-// Constructor now takes width, height, x, y in this order
 Enemy::Enemy(int width, int height, float x, float y) {
-    shape.setSize({static_cast<float>(width), static_cast<float>(height)});
+    shape.setSize({ static_cast<float>(width),
+                    static_cast<float>(height) });
     shape.setFillColor(sf::Color::Red);
-    shape.setPosition(sf::Vector2f(x, y));
+    shape.setPosition({ x, y });
+}
+
+sf::FloatRect Enemy::getGlobalBounds() const {
+    return shape.getGlobalBounds();
 }
 
 void Enemy::update() {
-    // Logic for updating enemy (if any)
+    // Enemy logic if needed
 }
 
 void Enemy::draw(sf::RenderWindow& window) {
