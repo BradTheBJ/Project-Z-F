@@ -1,10 +1,4 @@
 #include "window.hpp"
-#include "player.hpp"
-#include "enemy.hpp"
-#include "globals.hpp"
-
-#include <SFML/Graphics.hpp>
-#include <vector>
 
 void game() {
     Window w;
@@ -13,7 +7,15 @@ void game() {
     sf::VideoMode mode({ static_cast<unsigned int>(w.width),
                          static_cast<unsigned int>(w.height) });
     sf::RenderWindow window(mode, "Project Z");
+
     window.setVerticalSyncEnabled(true);
+
+    // Fix: use sf::Vector2f
+    camera.setSize(sf::Vector2f(static_cast<float>(window.getSize().x),
+                                static_cast<float>(window.getSize().y)));
+
+    // Initially center camera on player
+    camera.setCenter(player.getPosition());
 
     enemies.clear();
     enemies.push_back(Enemy());
@@ -36,6 +38,10 @@ void game() {
         }
 
         player.update();
+
+        // Update camera to follow player
+        camera.setCenter(player.getPosition());
+        window.setView(camera);
 
         window.clear(sf::Color::Black);
         player.draw(window);

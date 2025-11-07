@@ -37,4 +37,6 @@ public:
     Player();
     void update();
     void draw(sf::RenderWindow& window);
+    sf::Vector2f getPosition() const { return shape.getPosition(); }
+
 };
