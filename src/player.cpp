@@ -2,44 +2,79 @@
 #include "globals.hpp"
 #include "enemy.hpp"
 
-Gun::Gun() {
+// ---------------- Bullets ----------------
+Player::Gun::Bullets::Bullets() {
+    bullet.setRadius(static_cast<float>(bVars.radius));
+    bullet.setFillColor(sf::Color::Yellow);
+    bullet.setOrigin({ bullet.getRadius(), bullet.getRadius() });
+}
+
+sf::FloatRect Player::Gun::Bullets::getGlobalBounds() const {
+    return bullet.getGlobalBounds();
+}
+
+void Player::Gun::Bullets::moveTowards(const sf::Vector2f& target, float deltaTime) {
+    sf::Vector2f pos = bullet.getPosition();
+    sf::Vector2f dir = target - pos;
+    float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+    if (length != 0.f) {
+        dir /= length;
+        pos += dir * bVars.speed * deltaTime;
+        bullet.setPosition(pos);
+    }
+}
+
+// ---------------- Gun ----------------
+Player::Gun::Gun() {
     shape.setRadius(static_cast<float>(vars.radius));
-    shape.setFillColor(sf::Color::Yellow);
+    shape.setFillColor(sf::Color::Red);
     shape.setOrigin({ shape.getRadius(), shape.getRadius() });
 }
 
-void Gun::update(const sf::Vector2f& playerPos) {
+void Player::Gun::update(const sf::Vector2f& playerPos) {
     shape.setPosition(playerPos);
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+        playerProjectiles.push_back(Bullets());
+        playerProjectiles.back().bullet.setPosition(playerPos);
+    }
+
+    sf::Vector2f mouseWorldPos = static_cast<sf::Vector2f>(sf::Mouse::getPosition());
+    for (auto& proj : playerProjectiles) {
+        proj.moveTowards(mouseWorldPos, deltaTime);
+    }
 }
 
-void Gun::draw(sf::RenderWindow& window) {
+void Player::Gun::draw(sf::RenderWindow& window) {
     window.draw(shape);
+    for (auto& proj : playerProjectiles) {
+        window.draw(proj.bullet);
+    }
 }
 
+// ---------------- Player ----------------
 Player::Player() {
-    shape.setSize({ static_cast<float>(vars.width),
-                    static_cast<float>(vars.height) });
+    shape.setSize({ static_cast<float>(vars.width), static_cast<float>(vars.height) });
     shape.setFillColor(sf::Color::Green);
     shape.setPosition({ vars.x, vars.y });
-    shape.setOrigin({ shape.getSize().x / 2.f,
-                      shape.getSize().y / 2.f });
+    shape.setOrigin({ shape.getSize().x / 2.f, shape.getSize().y / 2.f });
+}
+
+sf::Vector2f Player::getPosition() const {
+    return shape.getPosition();
+}
+
+sf::FloatRect Player::getGlobalBounds() const {
+    return shape.getGlobalBounds();
 }
 
 void Player::update() {
     sf::Vector2f lastPos = shape.getPosition();
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-        vars.x -= vars.speed * deltaTime;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-        vars.x += vars.speed * deltaTime;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
-        vars.y -= vars.speed * deltaTime;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
-        vars.y += vars.speed * deltaTime;
-    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) vars.x -= vars.speed * deltaTime;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) vars.x += vars.speed * deltaTime;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) vars.y -= vars.speed * deltaTime;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) vars.y += vars.speed * deltaTime;
 
     shape.setPosition({ vars.x, vars.y });
     gun.update(shape.getPosition());

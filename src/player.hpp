@@ -1,5 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <cmath>
+
+class Enemy; // forward declaration
 
 struct PlayerVars {
     float speed  = 500.f;
@@ -9,32 +13,40 @@ struct PlayerVars {
     float y      = 500.f;
 };
 
-class Gun {
-private:
-    sf::CircleShape shape;
-
-public:
-    struct GunVars {
-        int radius = 40;
-    };
-    GunVars vars;
-
-    Gun();
-    void update(const sf::Vector2f& playerPos);
-    void draw(sf::RenderWindow& window);
-};
-
 class Player {
+public:
+    struct Gun {
+        class Bullets {
+        public:
+            sf::CircleShape bullet;
+
+            struct BulletVars {
+                float radius = 10.f;
+                float speed  = 600.f;
+            } bVars;
+
+            Bullets();
+            sf::FloatRect getGlobalBounds() const;
+            void moveTowards(const sf::Vector2f& target, float deltaTime);
+        };
+
+        sf::CircleShape shape;
+        struct GunVars { int radius = 40; } vars;
+
+        Gun();
+        void update(const sf::Vector2f& playerPos);
+        void draw(sf::RenderWindow& window);
+    };
+
+    PlayerVars vars;
 private:
     sf::RectangleShape shape;
     Gun gun;
 
 public:
-    PlayerVars vars;
-
     Player();
+    sf::Vector2f getPosition() const;
+    sf::FloatRect getGlobalBounds() const;
     void update();
     void draw(sf::RenderWindow& window);
-    sf::Vector2f getPosition() const { return shape.getPosition(); }
-    sf::FloatRect getGlobalBounds() const { return shape.getGlobalBounds(); }
 };
