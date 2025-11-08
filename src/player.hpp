@@ -5,6 +5,7 @@
 
 class Enemy; // forward declaration
 
+// --------- Add PlayerVars before Player ---------
 struct PlayerVars {
     float speed  = 500.f;
     int width    = 100;
@@ -13,12 +14,14 @@ struct PlayerVars {
     float y      = 500.f;
 };
 
+// ---------------- Player ----------------
 class Player {
 public:
     struct Gun {
         class Bullets {
         public:
             sf::CircleShape bullet;
+            bool destroyed = false;
 
             struct BulletVars {
                 float radius = 10.f;
@@ -38,13 +41,14 @@ public:
         void draw(sf::RenderWindow& window);
     };
 
-    PlayerVars vars;
+    Player();
+
+    PlayerVars vars; // now PlayerVars is fully defined
 private:
     sf::RectangleShape shape;
     Gun gun;
 
 public:
-    Player();
     sf::Vector2f getPosition() const;
     sf::FloatRect getGlobalBounds() const;
     void update(sf::RenderWindow& window);

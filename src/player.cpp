@@ -1,25 +1,29 @@
+// src/player.cpp
 #include "player.hpp"
 #include "globals.hpp"
 #include "enemy.hpp"
+#include <SFML/Window/Mouse.hpp>
+#include <cmath>
 
 // ---------------- Bullets ----------------
 Player::Gun::Bullets::Bullets() {
     bullet.setRadius(static_cast<float>(bVars.radius));
     bullet.setFillColor(sf::Color::Yellow);
     bullet.setOrigin({ bullet.getRadius(), bullet.getRadius() });
+    destroyed = false;
 }
 
 sf::FloatRect Player::Gun::Bullets::getGlobalBounds() const {
     return bullet.getGlobalBounds();
 }
 
-void Player::Gun::Bullets::moveTowards(const sf::Vector2f& target, float deltaTime) {
+void Player::Gun::Bullets::moveTowards(const sf::Vector2f& target, float dt) {
     sf::Vector2f pos = bullet.getPosition();
     sf::Vector2f dir = target - pos;
     float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
     if (length != 0.f) {
         dir /= length;
-        pos += dir * bVars.speed * deltaTime;
+        pos += dir * bVars.speed * dt;
         bullet.setPosition(pos);
     }
 }
@@ -35,27 +39,26 @@ void Player::Gun::update(const sf::Vector2f& playerPos, sf::RenderWindow& window
     // Update gun position
     shape.setPosition(playerPos);
 
-    // Shooting
+    // Shooting: spawn a bullet when left mouse button pressed
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         playerProjectiles.push_back(Bullets());
         playerProjectiles.back().bullet.setPosition(playerPos);
     }
 
-    // Get mouse position relative to the window
+    // Get mouse position relative to the window (world coords)
     sf::Vector2i mousePixelPos = sf::Mouse::getPosition(window); // window-relative
     sf::Vector2f mouseWorldPos = window.mapPixelToCoords(mousePixelPos); // world coords
 
     // Move bullets toward mouse
     for (auto& proj : playerProjectiles) {
-        proj.moveTowards(mouseWorldPos, deltaTime);
+        if (!proj.destroyed) proj.moveTowards(mouseWorldPos, deltaTime);
     }
 }
-
 
 void Player::Gun::draw(sf::RenderWindow& window) {
     window.draw(shape);
     for (auto& proj : playerProjectiles) {
-        window.draw(proj.bullet);
+        if (!proj.destroyed) window.draw(proj.bullet);
     }
 }
 
@@ -84,19 +87,24 @@ void Player::update(sf::RenderWindow& window) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) vars.y += vars.speed * deltaTime;
 
     shape.setPosition({ vars.x, vars.y });
+
+    // update gun (which also moves bullets)
     gun.update(shape.getPosition(), window);
 
+    // collision with enemies: revert to last position if collision
     for (auto& e : enemies) {
-        if (shape.getGlobalBounds().findIntersection(e.getGlobalBounds())) {
-            shape.setPosition(lastPos);
-            vars.x = lastPos.x;
-            vars.y = lastPos.y;
-            break;
-        }
+    if (!e.isAlive()) continue;
+    auto playerBounds = shape.getGlobalBounds();
+    auto enemyBounds  = e.getGlobalBounds();
+    if ( playerBounds.findIntersection(enemyBounds).has_value() ) {
+
+        shape.setPosition(lastPos);
+        vars.x = lastPos.x;
+        vars.y = lastPos.y;
+        break;
     }
 }
-
-
+}
 
 void Player::draw(sf::RenderWindow& window) {
     window.draw(shape);

@@ -16,6 +16,7 @@ class Enemy {
 private:
     sf::RectangleShape shape;
     EnemyVars eVars;
+    bool alive = true; // <- new
 
 public:
     Enemy(int width = EnemyVars().width,
@@ -23,7 +24,12 @@ public:
           float x = EnemyVars().x,
           float y = EnemyVars().y);
 
+    ~Enemy() = default;
+
     sf::FloatRect getGlobalBounds() const;
     void update(const Player& player);
     void draw(sf::RenderWindow& window);
+
+    bool isAlive() const { return alive; }  
+    void kill() { alive = false; }
 };

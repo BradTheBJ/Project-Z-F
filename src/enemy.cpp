@@ -16,6 +16,8 @@ sf::FloatRect Enemy::getGlobalBounds() const {
 }
 
 void Enemy::update(const Player& player) {
+    if (!alive) return; // don't update dead enemies
+
     sf::Vector2f oldPos = shape.getPosition();
     sf::Vector2f pos = oldPos;
     sf::Vector2f dir = player.getPosition() - pos;
@@ -40,18 +42,26 @@ void Enemy::update(const Player& player) {
     // collision with other enemies
     for (Enemy& other : enemies) {
         if (&other == this) continue;  // skip self
-
+        if (!other.isAlive()) continue;
         if (shape.getGlobalBounds().findIntersection(other.shape.getGlobalBounds())) {
             shape.setPosition(oldPos);  // revert movement
             eVars.x = oldPos.x;
             eVars.y = oldPos.y;
-            break;                     // stop checking further
+            break;
+        }
+    }
+
+    // collision with player projectiles: mark self dead and projectile destroyed
+    for (auto& p : playerProjectiles) {
+        if (p.destroyed) continue; // skip already destroyed projectiles
+        if (shape.getGlobalBounds().findIntersection(p.getGlobalBounds())) {
+            kill();            // mark enemy as dead (outer loop will erase)
+            p.destroyed = true; // mark projectile for removal
+            break;
         }
     }
 }
 
-
-
 void Enemy::draw(sf::RenderWindow& window) {
-    window.draw(shape);
+    if (alive) window.draw(shape);
 }

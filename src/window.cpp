@@ -1,7 +1,9 @@
+// src/window.cpp
 #include "window.hpp"
 #include "globals.hpp"
 #include "player.hpp"
 #include "enemy.hpp"
+#include <algorithm>
 
 void game() {
     Window w;
@@ -24,28 +26,49 @@ void game() {
     sf::Clock clock;
 
     while (window.isOpen()) {
-        deltaTime = clock.restart().asSeconds();
+    deltaTime = clock.restart().asSeconds();
 
-        while (auto eventOpt = window.pollEvent()) {
-            if (eventOpt->is<sf::Event::Closed>())
-                window.close();
-        }
+    // handle events
+    while (auto eventOpt = window.pollEvent()) {
+        const sf::Event &event = *eventOpt;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+        if (event.is<sf::Event::Closed>()) {
             window.close();
-
-        player.update(window);
-
-        for (auto& e : enemies)
-            e.update(player);
-
-        camera.setCenter(player.getPosition());
-        window.setView(camera);
-
-        window.clear(sf::Color::Black);
-        player.draw(window);
-        for (auto& e : enemies)
-            e.draw(window);
-        window.display();
+        }
+        else if (const auto* kp = event.getIf<sf::Event::KeyPressed>()) {
+            if (kp->code == sf::Keyboard::Key::Escape) {
+                window.close();
+            }
+        }
     }
+
+    // updates
+    player.update(window);
+    for (auto &e : enemies) {
+        e.update(player);
+    }
+
+    // cleanup
+    playerProjectiles.erase(
+        std::remove_if(playerProjectiles.begin(), playerProjectiles.end(),
+                       [](auto &b){ return b.destroyed; }),
+        playerProjectiles.end()
+    );
+    enemies.erase(
+        std::remove_if(enemies.begin(), enemies.end(),
+                       [](auto &e){ return !e.isAlive(); }),
+        enemies.end()
+    );
+
+    // camera & draw
+    camera.setCenter(player.getPosition());
+    window.setView(camera);
+
+    window.clear(sf::Color::Black);
+    player.draw(window);
+    for (auto &e : enemies) {
+        e.draw(window);
+    }
+    window.display();
+}
 }
