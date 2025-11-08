@@ -31,19 +31,26 @@ Player::Gun::Gun() {
     shape.setOrigin({ shape.getRadius(), shape.getRadius() });
 }
 
-void Player::Gun::update(const sf::Vector2f& playerPos) {
+void Player::Gun::update(const sf::Vector2f& playerPos, sf::RenderWindow& window) {
+    // Update gun position
     shape.setPosition(playerPos);
 
+    // Shooting
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         playerProjectiles.push_back(Bullets());
         playerProjectiles.back().bullet.setPosition(playerPos);
     }
 
-    sf::Vector2f mouseWorldPos = static_cast<sf::Vector2f>(sf::Mouse::getPosition());
+    // Get mouse position relative to the window
+    sf::Vector2i mousePixelPos = sf::Mouse::getPosition(window); // window-relative
+    sf::Vector2f mouseWorldPos = window.mapPixelToCoords(mousePixelPos); // world coords
+
+    // Move bullets toward mouse
     for (auto& proj : playerProjectiles) {
         proj.moveTowards(mouseWorldPos, deltaTime);
     }
 }
+
 
 void Player::Gun::draw(sf::RenderWindow& window) {
     window.draw(shape);
@@ -68,7 +75,7 @@ sf::FloatRect Player::getGlobalBounds() const {
     return shape.getGlobalBounds();
 }
 
-void Player::update() {
+void Player::update(sf::RenderWindow& window) {  
     sf::Vector2f lastPos = shape.getPosition();
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) vars.x -= vars.speed * deltaTime;
@@ -77,7 +84,7 @@ void Player::update() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) vars.y += vars.speed * deltaTime;
 
     shape.setPosition({ vars.x, vars.y });
-    gun.update(shape.getPosition());
+    gun.update(shape.getPosition(), window);
 
     for (auto& e : enemies) {
         if (shape.getGlobalBounds().findIntersection(e.getGlobalBounds())) {
@@ -88,6 +95,8 @@ void Player::update() {
         }
     }
 }
+
+
 
 void Player::draw(sf::RenderWindow& window) {
     window.draw(shape);

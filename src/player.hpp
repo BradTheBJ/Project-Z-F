@@ -34,7 +34,7 @@ public:
         struct GunVars { int radius = 40; } vars;
 
         Gun();
-        void update(const sf::Vector2f& playerPos);
+        void update(const sf::Vector2f& playerPos, sf::RenderWindow& window);
         void draw(sf::RenderWindow& window);
     };
 
@@ -47,6 +47,6 @@ public:
     Player();
     sf::Vector2f getPosition() const;
     sf::FloatRect getGlobalBounds() const;
-    void update();
+    void update(sf::RenderWindow& window);
     void draw(sf::RenderWindow& window);
 };

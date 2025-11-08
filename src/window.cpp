@@ -34,7 +34,7 @@ void game() {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             window.close();
 
-        player.update();
+        player.update(window);
 
         for (auto& e : enemies)
             e.update(player);
